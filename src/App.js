@@ -1,10 +1,11 @@
 import "./App.css";
-import NameForm from "./component/form/NameForm";
+
+import MainPage from "./pages/MainPage";
 
 function App() {
   return (
     <div>
-      <NameForm />
+      <MainPage />
     </div>
   );
 }
