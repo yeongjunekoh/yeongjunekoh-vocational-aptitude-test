@@ -1,7 +1,7 @@
 import React from "react";
 import "./index.css";
 
-function GenderForm() {
+function NameForm() {
   return (
     <>
       <p className="title">이름</p>
@@ -10,4 +10,4 @@ function GenderForm() {
   );
 }
 
-export default GenderForm;
+export default NameForm;

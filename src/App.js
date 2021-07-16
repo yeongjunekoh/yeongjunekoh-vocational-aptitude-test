@@ -1,10 +1,10 @@
 import "./App.css";
-import GenderForm from "./component/form/GenderForm";
+import NameForm from "./component/form/NameForm";
 
 function App() {
   return (
     <div>
-      <GenderForm />
+      <NameForm />
     </div>
   );
 }
