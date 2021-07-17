@@ -4,7 +4,7 @@ import "./index.css";
 
 function BasicButton({ text, onClick }) {
   return (
-    <div className="container">
+    <div>
       <button className="button-style" onClick={onClick}>
         {text}
       </button>

@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import "./index.css";
 import SingleChoiceForm from "../../form/SingleChoiceForm";
 
-function QuestionCard({ answerLIst, titleText }) {
+function QuestionCard({ answerLIst, titleText, index }) {
   const [answerOption, setAnswerOption] = useState([...answerLIst]);
   const verifyCheckedNumber = useMemo(() => {
     return answerOption.filter((item) => item.isSelected === true).length;
@@ -50,7 +50,7 @@ function QuestionCard({ answerLIst, titleText }) {
 
   return (
     <div className="question-container">
-      <div className="title-text">{titleText}</div>
+      <div className="title-text">{`${titleText} 인덱스는 ${index}`}</div>
       <div className="answer-list">
         {answerOption.map((item, idx) => {
           return (

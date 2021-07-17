@@ -1,3 +1,11 @@
-.container {
-  display: block;
+.question-card-container {
+  margin: 20px 0px;
+}
+
+.button-container {
+  width: 1000px;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
