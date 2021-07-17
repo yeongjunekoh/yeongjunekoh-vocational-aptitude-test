@@ -3,8 +3,8 @@ import React, { useState, useCallback } from "react";
 import "./index.css";
 
 import NameForm from "../../component/form/NameForm";
-import GenderForm from "../../component/form/GenderForm/index";
 import BasicButton from "../../component/button/BasicButton";
+import SingleChoiceForm from "../../component/form/SingleChoiceForm";
 
 function MainPage() {
   const [isToggled, setIsToggled] = useState(false);
@@ -24,8 +24,16 @@ function MainPage() {
       <NameForm />
       <p className="title">성별</p>
 
-      <GenderForm text={"남성"} isToggled={!isToggled} onClick={toggleButton} />
-      <GenderForm text={"여성"} isToggled={isToggled} onClick={toggleButton} />
+      <SingleChoiceForm
+        text={"남성"}
+        isToggled={!isToggled}
+        onClick={toggleButton}
+      />
+      <SingleChoiceForm
+        text={"여성"}
+        isToggled={isToggled}
+        onClick={toggleButton}
+      />
 
       <BasicButton
         text="검사 시작"
