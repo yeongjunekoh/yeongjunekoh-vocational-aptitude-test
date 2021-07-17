@@ -1,37 +1,50 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 
 import "../InspectionPage/index.css";
 import CurrentStatusOfInspectionCard from "../../component/card/CurrentStatusOfInspectionCard";
 import QuestionCard from "../../component/card/QuestionCard";
+import BasicButton from "../../component/button/BasicButton";
+
+import { question } from "./dummy";
 
 function InspectionPage() {
-  const question = [
-    {
-      titleText: "질문 내용이 들어가는 부분입니다.",
-      answerList: [
-        { answerText: "선택지 1", isSelected: false },
-        { answerText: "선택지 2", isSelected: false },
-        { answerText: "선택지 3", isSelected: false },
-        { answerText: "선택지 4", isSelected: false },
-        { answerText: "선택지 5", isSelected: false },
-      ],
-    },
-  ];
+  const [pageNumber, setPageNumber] = useState(0);
+  const questionData = question;
 
-  console.log(question.length);
+  const handlePrevPage = useCallback(() => {
+    if (pageNumber === 0) {
+    } else {
+      setPageNumber((prev) => prev - 1);
+    }
+  }, [pageNumber]);
+  const handleNextPage = useCallback(() => {
+    if (pageNumber === Math.floor(question.length / 5)) {
+    } else {
+      setPageNumber((prev) => prev + 1);
+    }
+  }, [pageNumber]);
 
   return (
-    <div className="container">
+    <div>
       <CurrentStatusOfInspectionCard />
-      {question.map((item, idx) => {
-        return (
-          <QuestionCard
-            key={idx}
-            titleText={item.titleText}
-            answerLIst={item.answerList}
-          />
-        );
-      })}
+      {questionData
+        .slice(pageNumber * 5, (pageNumber + 1) * 5)
+        .map((item, idx) => {
+          return (
+            <div className="question-card-container">
+              <QuestionCard
+                key={idx}
+                index={idx}
+                titleText={item.titleText}
+                answerLIst={item.answerList}
+              />
+            </div>
+          );
+        })}
+      <div className="button-container">
+        <BasicButton text={"이전"} onClick={handlePrevPage} />
+        <BasicButton text={"다음"} onClick={handleNextPage} />
+      </div>
     </div>
   );
 }
