@@ -19,7 +19,7 @@ const genderListData = [
   },
 ];
 
-function MainPage() {
+function MainPage({ history }) {
   const [genderLIst, setGenderList] = useState(genderListData);
   const [text, setText] = useState("");
 
@@ -86,6 +86,7 @@ function MainPage() {
       gender: genderLIst.filter((item) => item.isSelected === true)[0].gender,
     };
     onSetClientInfo(submitState.text, submitState.gender);
+    history.push("/inspection-page?page=1");
     console.log("시작 할게요");
     console.log(submitState);
   }, [text, genderLIst]);

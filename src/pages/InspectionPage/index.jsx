@@ -1,34 +1,43 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 
 import "../InspectionPage/index.css";
 import CurrentStatusOfInspectionCard from "../../component/card/CurrentStatusOfInspectionCard";
 import QuestionCard from "../../component/card/QuestionCard";
 import BasicButton from "../../component/button/BasicButton";
+import queryString from "query-string";
 
 import { question } from "./dummy";
+import { withRouter } from "react-router-dom";
 
-function InspectionPage() {
-  const [pageNumber, setPageNumber] = useState(0);
+function InspectionPage({ location, history }) {
   const questionData = question;
+  const pageNumber = Number(queryString.parse(location.search).page);
+  const nextPage = pageNumber + 1;
+  const prevPage = pageNumber - 1;
+
+  console.log(pageNumber, prevPage, nextPage, Math.floor(question.length / 5));
 
   const handlePrevPage = useCallback(() => {
-    if (pageNumber === 0) {
+    if (prevPage <= 0) {
+      history.push("/main-page");
     } else {
-      setPageNumber((prev) => prev - 1);
+      history.push(`/inspection-page?page=${prevPage}`);
     }
-  }, [pageNumber]);
+  }, [prevPage]);
+
   const handleNextPage = useCallback(() => {
     if (pageNumber === Math.floor(question.length / 5)) {
+      history.push("/ending-page");
     } else {
-      setPageNumber((prev) => prev + 1);
+      history.push(`/inspection-page?page=${nextPage}`);
     }
-  }, [pageNumber]);
+  }, [nextPage]);
 
   return (
     <div>
       <CurrentStatusOfInspectionCard />
       {questionData
-        .slice(pageNumber * 5, (pageNumber + 1) * 5)
+        .slice((pageNumber - 1) * 5, pageNumber * 5)
         .map((item, idx) => {
           return (
             <div className="question-card-container">
@@ -49,4 +58,4 @@ function InspectionPage() {
   );
 }
 
-export default InspectionPage;
+export default withRouter(InspectionPage);
