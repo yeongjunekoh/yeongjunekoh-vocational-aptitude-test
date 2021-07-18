@@ -19,7 +19,11 @@ const genderListData = [
 
 function MainPage() {
   const [genderLIst, setGenderList] = useState(genderListData);
-  const [name, setName] = useState("");
+  const [text, setText] = useState("");
+
+  const onChangeText = useCallback((value) => {
+    setText(value);
+  }, []);
 
   const verifyCheckedNumber = useMemo(() => {
     return genderLIst.filter((item) => item.isSelected === true).length;
@@ -49,8 +53,6 @@ function MainPage() {
           }),
         ]);
       }
-      if (!shouldBlockCheck && isToggled) {
-      }
       if (!shouldBlockCheck && !isToggled) {
         setGenderList((prev) => [
           ...prev.slice(0, index),
@@ -62,14 +64,26 @@ function MainPage() {
     [verifyCheckedNumber]
   );
 
+  const shouldBlockStartButton = useMemo(() => {
+    return (
+      text === "" ||
+      genderLIst.filter((item) => item.isSelected === true).length === 0
+    );
+  }, [text, genderLIst]);
+
   const onClickStartButton = useCallback(() => {
+    const submitState = {
+      text: text,
+      gender: genderLIst.filter((item) => item.isSelected === true)[0].gender,
+    };
     console.log("시작 할게요");
-  }, []);
+    console.log(submitState);
+  }, [text, genderLIst]);
 
   return (
     <div className="main-page-container">
       <h1>직업 가치관 검사</h1>
-      <NameForm />
+      <NameForm onChangeText={onChangeText} />
       <p className="gender-title">성별</p>
 
       {genderLIst.map((item, idx) => {
@@ -85,7 +99,7 @@ function MainPage() {
       })}
       <BasicButton
         text="검사 시작"
-        onClick={name === "" ? () => {} : onClickStartButton}
+        onClick={shouldBlockStartButton ? () => {} : onClickStartButton}
       />
     </div>
   );
