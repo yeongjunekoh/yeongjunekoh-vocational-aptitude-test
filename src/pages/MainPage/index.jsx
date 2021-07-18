@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useMemo } from "react";
+import { useDispatch } from "react-redux";
 
 import "./index.css";
 
 import NameForm from "../../component/form/NameForm";
 import BasicButton from "../../component/button/BasicButton";
 import SingleChoiceForm from "../../component/form/SingleChoiceForm";
+import { setClientInfo } from "../../modules/clientInfo";
 
 const genderListData = [
   {
@@ -24,6 +26,13 @@ function MainPage() {
   const onChangeText = useCallback((value) => {
     setText(value);
   }, []);
+
+  const dispatch = useDispatch();
+
+  const onSetClientInfo = useCallback(
+    (name, gender) => dispatch(setClientInfo(name, gender)),
+    [dispatch]
+  );
 
   const verifyCheckedNumber = useMemo(() => {
     return genderLIst.filter((item) => item.isSelected === true).length;
@@ -76,6 +85,7 @@ function MainPage() {
       text: text,
       gender: genderLIst.filter((item) => item.isSelected === true)[0].gender,
     };
+    onSetClientInfo(submitState.text, submitState.gender);
     console.log("시작 할게요");
     console.log(submitState);
   }, [text, genderLIst]);
