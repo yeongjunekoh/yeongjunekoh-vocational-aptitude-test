@@ -1,11 +1,11 @@
-.gender-title {
-  height: 20px;
-  color: black;
-  margin-bottom: 0;
-}
-
 .main-page-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.gender-title {
+  height: 20px;
+  color: black;
+  margin-bottom: 0;
 }
