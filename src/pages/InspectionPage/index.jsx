@@ -1,26 +1,47 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import queryString from "query-string";
 import { withRouter } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 import "../InspectionPage/index.css";
 import CurrentStatusOfInspectionCard from "../../component/card/CurrentStatusOfInspectionCard";
 import QuestionCard from "../../component/card/QuestionCard";
 import BasicButton from "../../component/button/BasicButton";
-import { getData } from "../../modules/questionData";
+import { getData, setQuestionAnswer } from "../../modules/questionAnswer";
 
 function InspectionPage({ location, history }) {
   const pageNumber = Number(queryString.parse(location.search).page);
   const nextPage = pageNumber + 1;
   const prevPage = pageNumber - 1;
   const [questionList, setQuestionList] = useState([]);
+  const [totalQuestionNumber, setTotalQuestionNumber] = useState();
+  const dispatch = useDispatch();
+  const existingData = useSelector((state) => state.questionAnswer);
+
+  console.log(
+    "불러올 값",
+    existingData,
+    existingData.slice((pageNumber - 1) * 5 + 1, pageNumber * 5 + 1)
+  );
 
   const shouldCheckCurrentStatus = Math.floor(
-    (((pageNumber - 1) * 5) / Math.floor((questionList.length / 10 + 1) * 10)) *
-      100
+    (((pageNumber - 1) * 5) / (Math.floor(totalQuestionNumber / 10) + 1)) * 10
+  );
+
+  const onSetQuestAnswer = useCallback(
+    (data) => dispatch(setQuestionAnswer(data)),
+    [dispatch]
   );
 
   useEffect(() => {
+    setQuestionList(
+      existingData.slice((pageNumber - 1) * 5 + 1, pageNumber * 5 + 1)
+    );
+  }, [existingData, pageNumber]);
+
+  useEffect(() => {
     getData.then((Response) => {
+      setTotalQuestionNumber(Response.data.RESULT.length);
       setQuestionList(
         Response.data.RESULT.slice((pageNumber - 1) * 5, pageNumber * 5).map(
           (item) => {
@@ -51,22 +72,20 @@ function InspectionPage({ location, history }) {
   }, [pageNumber]);
 
   const updateQuestionList = useCallback(
-    (question, questionNumber, answerList) => {
+    (question, questionNumber, answerList, index) => {
       const option = {
         question: question,
         questionNumber: questionNumber,
         answerList: answerList,
       };
       setQuestionList((prev) => [
-        ...prev.slice(0, questionNumber - 1),
+        ...prev.slice(0, index),
         option,
-        ...prev.slice(questionNumber),
+        ...prev.slice(index + 1),
       ]);
     },
     [questionList]
   );
-
-  console.log("값", questionList);
 
   const handlePrevPage = useCallback(() => {
     if (prevPage <= 0) {
@@ -76,24 +95,38 @@ function InspectionPage({ location, history }) {
     }
   }, [prevPage]);
 
+  const shouldBlockClickButton = useMemo(() => {
+    return (
+      questionList
+        .map((item) => {
+          return item.answerList.filter((item) => item.isSelected === true);
+        })
+        .filter((item) => item.length !== 0).length === questionList.length
+    );
+  }, [questionList]);
+
   const handleNextPage = useCallback(() => {
-    if (pageNumber === Math.floor(questionList.length / 5)) {
+    if (pageNumber === Math.floor(totalQuestionNumber / 5)) {
       history.push("/ending-page");
-    } else {
-      history.push(`/inspection-page?page=${nextPage}`);
     }
-  }, [nextPage]);
+    if (shouldBlockClickButton) {
+      history.push(`/inspection-page?page=${nextPage}`);
+      onSetQuestAnswer(questionList);
+    } else {
+    }
+  }, [nextPage, shouldBlockClickButton]);
 
   return (
     <div>
       <CurrentStatusOfInspectionCard
         shouldCheckCurrentStatus={shouldCheckCurrentStatus}
       />
-      {questionList.map((item) => {
+      {questionList.map((item, idx) => {
         return (
           <div className="question-card-container">
             <QuestionCard
               key={item.questionNumber}
+              index={idx}
               titleText={item.question}
               answerLIst={item.answerList}
               questionNumber={item.questionNumber}
