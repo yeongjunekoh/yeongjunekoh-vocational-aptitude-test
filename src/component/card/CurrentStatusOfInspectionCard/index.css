@@ -1,0 +1,21 @@
+.container {
+  width: 1000px;
+  height: 100px;
+}
+.title-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+.total-status-bar {
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
+  border: 1px solid black;
+}
+.current-status-bar {
+  height: 20px;
+  border-radius: 8px;
+  background-color: blue;
+}

@@ -1,0 +1,22 @@
+.question-container {
+  max-width: 1000px;
+  max-height: 100px;
+  background-color: aqua;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0px;
+}
+
+.title-text {
+  margin-bottom: 20px;
+}
+
+.answer-list {
+  max-width: 1000px;
+  width: 800px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
