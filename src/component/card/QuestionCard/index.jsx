@@ -15,8 +15,6 @@ function QuestionCard({
     return answerOption.filter((item) => item.isSelected === true).length;
   }, [answerOption]);
 
-  console.log(answerOption);
-
   useEffect(() => {
     updateQuestionList(titleText, questionNumber, answerOption, index);
   }, [answerOption]);
