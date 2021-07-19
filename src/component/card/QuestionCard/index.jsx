@@ -8,6 +8,7 @@ function QuestionCard({
   titleText,
   questionNumber,
   updateQuestionList,
+  index,
 }) {
   const [answerOption, setAnswerOption] = useState([...answerLIst]);
   const verifyCheckedNumber = useMemo(() => {
@@ -17,7 +18,7 @@ function QuestionCard({
   console.log(answerOption);
 
   useEffect(() => {
-    updateQuestionList(titleText, questionNumber, answerOption);
+    updateQuestionList(titleText, questionNumber, answerOption, index);
   }, [answerOption]);
 
   const updateOption = useCallback(
