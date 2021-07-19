@@ -1,12 +1,23 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 
 import "./index.css";
 import SingleChoiceForm from "../../form/SingleChoiceForm";
 
-function QuestionCard({ answerLIst, titleText, index }) {
+function QuestionCard({
+  answerLIst,
+  titleText,
+  questionNumber,
+  updateQuestionList,
+}) {
   const [answerOption, setAnswerOption] = useState([...answerLIst]);
   const verifyCheckedNumber = useMemo(() => {
     return answerOption.filter((item) => item.isSelected === true).length;
+  }, [answerOption]);
+
+  console.log(answerOption);
+
+  useEffect(() => {
+    updateQuestionList(titleText, questionNumber, answerOption);
   }, [answerOption]);
 
   const updateOption = useCallback(
@@ -45,17 +56,17 @@ function QuestionCard({ answerLIst, titleText, index }) {
       if (verifyCheckedNumber < 1 && isToggled) {
       }
     },
-    [verifyCheckedNumber]
+    [verifyCheckedNumber, answerOption]
   );
 
   return (
     <div className="question-container">
-      <div className="title-text">{`${titleText} 인덱스는 ${index}`}</div>
+      <div className="title-text">{`Q${questionNumber}. ${titleText}`}</div>
       <div className="answer-list">
         {answerOption.map((item, idx) => {
           return (
             <SingleChoiceForm
-              key={idx}
+              key={`${idx}`}
               text={item.answerText}
               isToggled={item.isSelected}
               onClick={updateOption}

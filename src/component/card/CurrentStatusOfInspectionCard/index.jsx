@@ -2,8 +2,8 @@ import React from "react";
 
 import "./index.css";
 
-function CurrentStatusOfInspectionCard() {
-  const width = "20%";
+function CurrentStatusOfInspectionCard({ shouldCheckCurrentStatus }) {
+  const width = `${shouldCheckCurrentStatus}%`;
 
   return (
     <div className="container">
