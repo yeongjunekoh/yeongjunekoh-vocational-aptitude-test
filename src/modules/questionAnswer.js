@@ -4,10 +4,6 @@ export const getData = axios.get(
   "https://www.career.go.kr/inspct/openapi/test/questions?apikey=72612ba54c1decfb085cfe680f85ce3a&q=6&trgetSe=100208"
 );
 
-export const sendData = axios.post(
-  "https://www.career.go.kr/inspct/openapi/test/questions?apikey=72612ba54c1decfb085cfe680f85ce3a&q=6&trgetSe=100208"
-);
-
 const SET_QUESTION_ANSWER = "counter/SET_QUESTION_ANSWER";
 const UPDATE_QUESTION_ANSWER = "counter/UPDATE_QUESTION_ANSWER";
 const DELETE_DATA = "counter/DELETE_DATA";
