@@ -30,7 +30,7 @@ function MainPage({ history }) {
   const dispatch = useDispatch();
 
   const onSetClientInfo = useCallback(
-    (name, gender) => dispatch(setClientInfo(name, gender)),
+    (name, gender) => dispatch(setClientInfo(name, gender, new Date())),
     [dispatch]
   );
 

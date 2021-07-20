@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Bar } from "react-chartjs-2";
+import { useDispatch, useSelector } from "react-redux";
+import { withRouter } from "react-router-dom";
 
 import "./index.css";
-import { resultDummyData } from "./dummy";
 
-function ResultPage() {
+import { resultDummyData } from "./dummy";
+import { deleteData } from "../../modules/questionAnswer";
+
+function ResultPage({ history }) {
+  const client = useSelector((state) => state.clientInfo);
   const result = resultDummyData;
   const barData = {
     labels: result.result.map((item) => item.resultCategoryName),
@@ -20,7 +25,15 @@ function ResultPage() {
       },
     ],
   };
-  console.log(barData);
+
+  const dispatch = useDispatch();
+
+  const onDeleteData = useCallback(() => dispatch(deleteData()), [dispatch]);
+
+  const onInspectAgain = useCallback(() => {
+    onDeleteData();
+    history.push("/");
+  }, []);
 
   return (
     <div className="result-container">
@@ -35,17 +48,19 @@ function ResultPage() {
         </thead>
         <tbody>
           <tr>
-            <td className="table-item">{result.name}</td>
-            <td className="table-item">{result.gender}</td>
-            <td className="table-item">{result.date}</td>
+            <td className="table-item">{client.name}</td>
+            <td className="table-item">{client.gender}</td>
+            <td className="table-item">{`${client.date.getYear()}. ${client.date.getMonth()}. ${client.date.getDate()}`}</td>
           </tr>
         </tbody>
       </table>
       <h3>{"직업 가치관 결과"}</h3>
       <Bar data={barData} style={{ maxWidth: 1000 }} options={{}} />
-      <button className="button-style">{"다시 검사하기"}</button>
+      <button className="button-style" onClick={onInspectAgain}>
+        {"다시 검사하기"}
+      </button>
     </div>
   );
 }
 
-export default ResultPage;
+export default withRouter(ResultPage);
