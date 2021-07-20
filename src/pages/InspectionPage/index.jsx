@@ -12,6 +12,8 @@ import {
   setQuestionAnswer,
   updateQuestionAnswer,
 } from "../../modules/questionAnswer";
+import axios from "axios";
+import { setResultData } from "../../modules/resultData";
 
 function InspectionPage({ location, history }) {
   const pageNumber = Number(queryString.parse(location.search).page);
@@ -21,13 +23,9 @@ function InspectionPage({ location, history }) {
   const [totalQuestionNumber, setTotalQuestionNumber] = useState();
   const dispatch = useDispatch();
   const existingData = useSelector((state) => state.questionAnswer);
+  const client = useSelector((state) => state.clientInfo);
 
-  console.log(
-    "불러올 값(모두)",
-    existingData,
-    "불러올 값(페이지당 5개)",
-    existingData.slice((pageNumber - 1) * 5 + 1, pageNumber * 5 + 1)
-  );
+  console.log("data", existingData);
 
   const shouldCheckCurrentStatus = Math.floor(
     (((pageNumber - 1) * 5) / (Math.floor(totalQuestionNumber / 10) + 1)) * 10
@@ -42,6 +40,44 @@ function InspectionPage({ location, history }) {
     (data) => dispatch(updateQuestionAnswer(data)),
     [dispatch]
   );
+
+  const onSetResultData = useCallback((data) => dispatch(setResultData(data)), [
+    dispatch,
+  ]);
+
+  const handleSubmitInspectionAnswer = useCallback(() => {
+    const postData = existingData
+      .concat(questionList)
+      .map((item) => {
+        return `B${item.questionNumber}=${
+          item.answerList.findIndex((item) => item.isSelected === true) + 1
+        }`;
+      })
+      .slice(1)
+      .join(" ");
+
+    const genderCode = client.gender === "남성" ? "100323" : "100324";
+    console.log("AnswerString", postData, "gender", genderCode);
+    try {
+      axios
+        .post("http://www.career.go.kr/inspct/openapi/test/report", {
+          apikey: "72612ba54c1decfb085cfe680f85ce3a",
+          qestrnSeq: "6",
+          trgetSe: "100208",
+          name: `${client.name}`,
+          gender: genderCode,
+          school: "",
+          grade: "2",
+          email: "",
+          startDtm: "1550466291034",
+          answers: postData,
+        })
+        .then((response) => onSetResultData(response.data));
+      history.push("/ending-page");
+    } catch (error) {
+      console.log(error);
+    }
+  }, [client, existingData, history, questionList]);
 
   const shouldSelectFunction = useMemo(() => {
     return (
@@ -85,7 +121,7 @@ function InspectionPage({ location, history }) {
       : setQuestionList(
           existingData.slice((pageNumber - 1) * 5 + 1, pageNumber * 5 + 1)
         );
-  }, [pageNumber, existingData]);
+  }, [pageNumber, existingData, shouldSelectFunction]);
 
   const updateQuestionList = useCallback(
     (question, questionNumber, answerList, index) => {
@@ -109,18 +145,7 @@ function InspectionPage({ location, history }) {
     } else {
       history.push(`/inspection-page?page=${prevPage}`);
     }
-  }, [prevPage]);
-
-  console.log(
-    "밖에서 콘솔",
-    questionList
-      .map((item) => {
-        return item.answerList.filter((item) => item.isSelected === true);
-      })
-      .filter((item) => item.length !== 0),
-    "밖에서 콘솔(data값)",
-    questionList
-  );
+  }, [prevPage, history]);
 
   const shouldBlockClickButton = useMemo(() => {
     return (
@@ -132,14 +157,12 @@ function InspectionPage({ location, history }) {
     );
   }, [questionList]);
 
-  console.log("dkzkzkzk", Math.floor(totalQuestionNumber / 5) + 1, pageNumber);
-
   const handleNextPage = useCallback(() => {
     const findLastPage = pageNumber === Math.floor(totalQuestionNumber / 5) + 1;
     if (findLastPage && shouldBlockClickButton) {
-      history.push("/ending-page");
+      onSetQuestAnswer(questionList);
+      handleSubmitInspectionAnswer();
     }
-    console.log("막아라", shouldBlockClickButton);
     if (!findLastPage && shouldBlockClickButton) {
       history.push(`/inspection-page?page=${nextPage}`);
       shouldSelectFunction
