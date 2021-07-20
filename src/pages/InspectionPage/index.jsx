@@ -7,7 +7,13 @@ import "../InspectionPage/index.css";
 import CurrentStatusOfInspectionCard from "../../component/card/CurrentStatusOfInspectionCard";
 import QuestionCard from "../../component/card/QuestionCard";
 import BasicButton from "../../component/button/BasicButton";
-import { getData, setQuestionAnswer } from "../../modules/questionAnswer";
+import {
+  getData,
+  setQuestionAnswer,
+  updateQuestionAnswer,
+} from "../../modules/questionAnswer";
+import axios from "axios";
+import { setResultData } from "../../modules/resultData";
 
 function InspectionPage({ location, history }) {
   const pageNumber = Number(queryString.parse(location.search).page);
@@ -17,12 +23,9 @@ function InspectionPage({ location, history }) {
   const [totalQuestionNumber, setTotalQuestionNumber] = useState();
   const dispatch = useDispatch();
   const existingData = useSelector((state) => state.questionAnswer);
+  const client = useSelector((state) => state.clientInfo);
 
-  console.log(
-    "불러올 값",
-    existingData,
-    existingData.slice((pageNumber - 1) * 5 + 1, pageNumber * 5 + 1)
-  );
+  console.log("data", existingData);
 
   const shouldCheckCurrentStatus = Math.floor(
     (((pageNumber - 1) * 5) / (Math.floor(totalQuestionNumber / 10) + 1)) * 10
@@ -33,43 +36,92 @@ function InspectionPage({ location, history }) {
     [dispatch]
   );
 
-  useEffect(() => {
-    setQuestionList(
+  const onUpdateQuestionAnswer = useCallback(
+    (data) => dispatch(updateQuestionAnswer(data)),
+    [dispatch]
+  );
+
+  const onSetResultData = useCallback((data) => dispatch(setResultData(data)), [
+    dispatch,
+  ]);
+
+  const handleSubmitInspectionAnswer = useCallback(() => {
+    const postData = existingData
+      .concat(questionList)
+      .map((item) => {
+        return `B${item.questionNumber}=${
+          item.answerList.findIndex((item) => item.isSelected === true) + 1
+        }`;
+      })
+      .slice(1)
+      .join(" ");
+
+    const genderCode = client.gender === "남성" ? "100323" : "100324";
+    console.log("AnswerString", postData, "gender", genderCode);
+    try {
+      axios
+        .post("http://www.career.go.kr/inspct/openapi/test/report", {
+          apikey: "72612ba54c1decfb085cfe680f85ce3a",
+          qestrnSeq: "6",
+          trgetSe: "100208",
+          name: `${client.name}`,
+          gender: genderCode,
+          school: "",
+          grade: "2",
+          email: "",
+          startDtm: "1550466291034",
+          answers: postData,
+        })
+        .then((response) => onSetResultData(response.data));
+      history.push("/ending-page");
+    } catch (error) {
+      console.log(error);
+    }
+  }, [client, existingData, history, questionList]);
+
+  const shouldSelectFunction = useMemo(() => {
+    return (
       existingData.slice((pageNumber - 1) * 5 + 1, pageNumber * 5 + 1)
+        .length === 0
     );
   }, [existingData, pageNumber]);
 
   useEffect(() => {
-    getData.then((Response) => {
-      setTotalQuestionNumber(Response.data.RESULT.length);
-      setQuestionList(
-        Response.data.RESULT.slice((pageNumber - 1) * 5, pageNumber * 5).map(
-          (item) => {
-            const answerLIst = [
-              { answerText: item.answer01, isSelected: false },
-              { answerText: item.answer02, isSelected: false },
-              { answerText: item.answer03, isSelected: false },
-              { answerText: item.answer04, isSelected: false },
-              { answerText: item.answer05, isSelected: false },
-              { answerText: item.answer06, isSelected: false },
-              { answerText: item.answer07, isSelected: false },
-              { answerText: item.answer08, isSelected: false },
-              { answerText: item.answer09, isSelected: false },
-              { answerText: item.answer10, isSelected: false },
-            ].filter((item) => item.answerText !== null);
+    shouldSelectFunction
+      ? getData.then((Response) => {
+          setTotalQuestionNumber(Response.data.RESULT.length);
+          setQuestionList(
+            Response.data.RESULT.slice(
+              (pageNumber - 1) * 5,
+              pageNumber * 5
+            ).map((item) => {
+              const answerLIst = [
+                { answerText: item.answer01, isSelected: false },
+                { answerText: item.answer02, isSelected: false },
+                { answerText: item.answer03, isSelected: false },
+                { answerText: item.answer04, isSelected: false },
+                { answerText: item.answer05, isSelected: false },
+                { answerText: item.answer06, isSelected: false },
+                { answerText: item.answer07, isSelected: false },
+                { answerText: item.answer08, isSelected: false },
+                { answerText: item.answer09, isSelected: false },
+                { answerText: item.answer10, isSelected: false },
+              ].filter((item) => item.answerText !== null);
 
-            const verifyAnswerLength = Math.floor(answerLIst.length / 2);
+              const verifyAnswerLength = Math.floor(answerLIst.length / 2);
 
-            return {
-              question: item.question,
-              questionNumber: item.qitemNo,
-              answerList: answerLIst.slice(0, verifyAnswerLength),
-            };
-          }
-        )
-      );
-    });
-  }, [pageNumber]);
+              return {
+                question: item.question,
+                questionNumber: item.qitemNo,
+                answerList: answerLIst.slice(0, verifyAnswerLength),
+              };
+            })
+          );
+        })
+      : setQuestionList(
+          existingData.slice((pageNumber - 1) * 5 + 1, pageNumber * 5 + 1)
+        );
+  }, [pageNumber, existingData, shouldSelectFunction]);
 
   const updateQuestionList = useCallback(
     (question, questionNumber, answerList, index) => {
@@ -84,7 +136,7 @@ function InspectionPage({ location, history }) {
         ...prev.slice(index + 1),
       ]);
     },
-    [questionList]
+    []
   );
 
   const handlePrevPage = useCallback(() => {
@@ -93,7 +145,7 @@ function InspectionPage({ location, history }) {
     } else {
       history.push(`/inspection-page?page=${prevPage}`);
     }
-  }, [prevPage]);
+  }, [prevPage, history]);
 
   const shouldBlockClickButton = useMemo(() => {
     return (
@@ -106,15 +158,26 @@ function InspectionPage({ location, history }) {
   }, [questionList]);
 
   const handleNextPage = useCallback(() => {
-    if (pageNumber === Math.floor(totalQuestionNumber / 5)) {
-      history.push("/ending-page");
-    }
-    if (shouldBlockClickButton) {
-      history.push(`/inspection-page?page=${nextPage}`);
+    const findLastPage = pageNumber === Math.floor(totalQuestionNumber / 5) + 1;
+    if (findLastPage && shouldBlockClickButton) {
       onSetQuestAnswer(questionList);
+      handleSubmitInspectionAnswer();
+    }
+    if (!findLastPage && shouldBlockClickButton) {
+      history.push(`/inspection-page?page=${nextPage}`);
+      shouldSelectFunction
+        ? onSetQuestAnswer(questionList)
+        : onUpdateQuestionAnswer(questionList);
     } else {
     }
-  }, [nextPage, shouldBlockClickButton]);
+  }, [
+    nextPage,
+    shouldBlockClickButton,
+    pageNumber,
+    shouldSelectFunction,
+    questionList,
+    history,
+  ]);
 
   return (
     <div>
