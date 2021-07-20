@@ -1,9 +1,12 @@
 import React, { useCallback } from "react";
 
 import "./index.css";
+import { withRouter } from "react-router-dom";
 
-function EndingPage() {
-  const onClickButton = useCallback(() => {}, []);
+function EndingPage({ history }) {
+  const onClickButton = useCallback(() => {
+    history.push("/result-page");
+  }, [history]);
 
   return (
     <div className="ending-page-container">
@@ -20,4 +23,4 @@ function EndingPage() {
   );
 }
 
-export default EndingPage;
+export default withRouter(EndingPage);
