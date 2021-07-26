@@ -11,5 +11,5 @@
 - 웹 사이트에서 데이터를 긁어오는 법을 몰라 병목이 발생하였습니다. 이에 대해 좋은 해결사항 있으면 코멘트 부탁드립니다!
 
 ## 기술 스택
-- `react-router`, `react`, `react-redux`, `axios`, `axios`를 사용하였습니다.
+- `react-router`, `react`, `react-redux`, `axios`를 사용하였습니다.
 
